@@ -39,6 +39,7 @@ library(gridExtra)
 library(caret)
 
 
+
 ##EDA
 summary(cardio)	
 glimpse(cardio)
@@ -65,7 +66,36 @@ plot_num(cardio)
 
 cardio_cont <- select(cardio,imc, perimetro_abdo, hto, glicemia, ct, hdl, tgd)
   
-
 chart.Correlation(cardio_cont, histogram = F, pch = 19)
+
+pairs.panels(cardio,pch='.') 
+
+cor.plot(cor(cardio_cont))
+
+corrplot(cor(cardio_cont), order = "hclust")
+
+
+####  Analisis de componentes principales     ####   
+
+xPCA<-prcomp(cardio_cont, scale=T)
+
+summary(xPCA)
+
+str(xPCA)
+
+xPCA$rotation
+
+xPCA$center
+
+xPCA$scale
+
+xPCA$x
+
+# Analizar las correlaciones de las componentes con las variables observadas
+cor(cardio_cont,xPCA$x)
+
+# Crear el biplot
+biplot(xPCA) NO SE PUEDE GRAFICAR
+Error in plot.new() : figure margins too large
 
 
