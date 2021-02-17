@@ -1,27 +1,18 @@
 ##limpiar ambiente de trabajo
 rm(list =ls())
 
-
 ##setear directorio de trabajo
-getwd()
-setwd("C:/Users/vieraa/Documents/GitHub/Individuales_TPAustral")
-Files_IDM <- paste
-
-
-##Impostar Dataset
-library(readxl)
-cardio <- read_excel("cardio.xls")
-
-cardiosID <- select(cardio, -id)
+WD <- paste0(getwd(), "/TPFinal_IDM")
+setwd (WD)
 
 ##Instalación de paquetes
 
-lista_paquetes = c("funModeling","factoextra", "MVN","caret","ggthemes","rpart", "rpart.plot","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
+lista_paquetes = c("funModeling","PerformanceAnalytics","factoextra", "MVN","caret","ggthemes","rpart", "rpart.plot","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
 
 nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
 
 if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
-install.packages("PerformanceAnalytics")
+
 
 ##carga de librerías
 library(dplyr)
@@ -43,37 +34,37 @@ library(caret)
 library(factoextra)
 library(knitr)
 library(MVN)
-library("plyr")
+library(plyr)
 library(rpart)
 library(rpart.plot)
 library(caret)
 
 
-##EDA
-summary(cardio)	
-glimpse(cardio)
-str(cardio)
-names(cardio)
-class(cardio)
-print(status(cardio))
-print(profiling_num(cardio))
-plot_num(cardio)
-describe(cardio)
-head(cardio)
-str (cardio)
+##Impostar Dataset
+cardio <- read_excel("cardio.xls")
 
+cardiosID <- select(cardio, -id)
+##EDA
+summary(cardiosID)	
+glimpse(cardiosID)
+class(cardiosID)
+print(status(cardiosID))
+print(profiling_num(cardiosID))
+describe(cardiosID)
+head(cardiosID)
+str (cardiosID)
 
 ##evalua datos faltantes
-plot_missing(cardio)
-
+plot_missing(cardiosID)
 
 ##pasar a factor género
 
 cardio$sexo <- as.factor(cardio$sexo)
+cardiosID$sexo <- as.factor(cardio$sexo)
 
 cardiosID <- select(cardio, -id)
 
-plot_num(cardio)
+plot_num(cardiosID)
 
 
 cardio_cont <- select(cardiosID,imc,perimetro_abdo, hto, glicemia, ct, hdl, tgd)
@@ -139,9 +130,8 @@ fit <- hclust(d, method = "ward.D")
 # Graficar el dendograma
 plot(fit) 
 
-# Indentificar los distintos clusters elegidos con 4 clusters
+# Indentificar los distintos clusters elegidos con 2 clusters
 rect.hclust(fit, k = 2, border = "green")
-##me quedé con 2
 
 # Indice Silhouette  ---
 fviz_nbclust(CCont_Cluster, kmeans, method = "silhouette") +
@@ -243,14 +233,14 @@ printcp (arbol)
 plotcp (arbol)
 
 
-## Poda del Arbol 
-Parbol <- prune(arbol, cp = arbol$cptable[which.min(arbol$cptable[,"xerror"]), "CP"] )
-printcp(Parbol)
-rpart.plot(Parbol)
-
 ##predicción sobre Train con arbol podado
-Prediccion1 <- predict(Parbol, newdata = cardio_train)
+Prediccion1 <- predict(arbol, newdata = cardio_train)
 table(Prediccion1, cardio_train$obesidad)
 sum((Prediccion1 == cardio_train$obesidad) / length(cardio_train$obesidad))*100
+
+##predicción sobre test con arbol podado
+Prediccion2 <- predict(arbol, newdata = cardio_test)
+table(Prediccion2, cardio_test$obesidad)
+sum((Prediccion2 == cardio_test$obesidad) / length(cardio_test$obesidad))*100
 
 
