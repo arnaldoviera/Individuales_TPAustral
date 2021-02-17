@@ -73,26 +73,20 @@ cardio$sexo <- as.factor(cardio$sexo)
 
 cardiosID <- select(cardio, -id)
 
-##a.	Describa la distribución univariada de las variables presente en el conjunto de datos.  ¿Se evidencian outliers en alguna de ellas?
 plot_num(cardio)
-##RTAa Se evidencian outliers en triglicéridos (tgd), glicemia,Hematorcrito (hto). No sólo son poco frecuentes, sino que en los gráficos de frecuencia se evidencia una interrupción de la curva.  
 
-##b. Calcule e interprete la matriz de correlaciones.
 
 cardio_cont <- select(cardiosID,imc,perimetro_abdo, hto, glicemia, ct, hdl, tgd)
   
-chart.Correlation(cardio_cont, histogram = F, pch = 19)
+chart.Correlation(cardio_cont, histogram = F, pch = 15)
 
-##este es el mejor!
-pairs.panels(cardiosID,pch='.') 
+pairs.panels(cardiosID, pch=20,scale = FALSE, main = "Matriz de Correlaciones - pairs.panels" )
+
 
 cor.plot(cor(cardio_cont))
 
 corrplot(cor(cardio_cont), order = "hclust", addrect = 3, tl.pos = "d")
-##RTAB: Con respecto a las correlaciones, se destaca una que surje a simple vista: imc/perímetro_abdo. Entendiendo el origen de cada variable y cómo se contruye, tiene sentido que tengan una fuerte correlación positiva: a medida que la relación del peso y la altura suben, el perímetro abdominarl también debería subir. Lo que quizás cabe destacar que las distintas variables tienen información redundante (lo veremos en el próximo ejercicio). 
 
-##El resto de las correlaciones no son significativas, sean estas positivas o negativas. Lo que quizás llama la atención es que la variable hdl (que vendría a ser el colesterol "bueno") tiene una leve correlación negativa con el resto de las variables.
-## En cambio, con el ct (colesterol total ) tiene correlación casi nula, aún cuando el hdl forma parte de la medición del ct. En este sentido, podríamos  inferir que la no-correlación entre hdl y ct se debe a una variable que también forma parte del ct, pero que no está incluida en el TP: el ldl o colesterol "malo".
 
 
 
@@ -104,8 +98,7 @@ xPCA<-prcomp(cardio_cont, scale=T)
 summary(xPCA)
 
 str(xPCA)
-#RTAC:Siguiendo con el análisis anterior, al tener poca correlación entre las variables, no existen pocos componentes que nos expliquen los datos. Para llegar a un 80% o más de explicación tenemos que llegar a la componente 5 de las 8 que estamos analizando. 
-##por otro lado las primeras 2 componentes logran explicar uin 45% de variabilidad y al ser una variable categórica, no logran explicar el sexo..
+
 xPCA$x
 
 xPCA$rotation
@@ -116,7 +109,6 @@ xPCA$scale
 
 xPCA$x
 
-view(xPCA)
 
 # Analizar las correlaciones de las componentes con las variables observadas
 cor(cardio_cont,xPCA$x)
@@ -209,24 +201,16 @@ kable(
     arrange(as.numeric(as.character(cluster))), 
   digits = 2
 )
-view(tablaResumen)
+view(tablaResumenO)
 
 
-##RTAD: A partir del análisis de cluster realizado, detectamos 2 grandes grupos. El grupo 1 con la mayoría la media de las variables más bajas, menos el hdl o colesterol "bueno".
 
-
-## acá viene el tema del árbol
-
-
-##construir variable dicotómica de obesidad
-
-##factorizar variables
 ##factorizar variables
 cardio <- cardio %>% 
   mutate(obesidad=factor(obesidad), 
          sexo=factor(sexo))
 
-
+##construir variable dicotómica de obesidad
 ##crear variable
 cardio<-cardio %>% 
   group_by(imc) %>%  
